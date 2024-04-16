@@ -1,0 +1,17 @@
+syntax = "proto3";
+package gpusimulator;
+
+service GPUSimulator {
+  rpc  ExecuteCircuit(GetCircuitRequest) returns (GetCircuitResponse) {}
+}
+
+message Input{
+  string subexperiments=1;
+  string devices=2;
+}
+message GetCircuitRequest{
+  Input input=1;
+}
+message GetCircuitResponse{
+  string results=1;
+}
