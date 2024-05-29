@@ -1,0 +1,5 @@
+qiskit-aer
+more-itertools
+grpcio
+requests
+qiskit-ibm-runtime

@@ -3,22 +3,7 @@ from qiskit_aer.primitives import Sampler
 from qutils import marshaller, program_serializers
 import json
 from more_itertools import divide
-from python.src.utils.classes.commons.serwo_objects import SerWOObject
 import logging
-
-def user_function(input):
-    try:
-        subexperiments = input['data']['subexperiments']
-        devices = json.dumps(input['devices'])
-        print(type(devices))
-        print(type(subexperiments))
-        return Simulator.exec_circuit(subexperiments,devices)
-    except Exception as e:
-        print(e)
-        logging.info(e)
-        logging.info("Error in user Function function")
-        raise Exception("[SerWOLite-Error]::Error at user function",e)
-
 
 class Simulator:
     def exec_circuit(subexperiments,devices):
@@ -53,16 +38,5 @@ class Simulator:
             print(e)
             logging.info(e)
             logging.info("Error in GPU-Simulator function")
-            raise Exception("[SerWOLite-Error]::Error at user function",e)
+            raise Exception("Error at user function",e)
 
-
-f=open("/home/tarun/XFaaS/serwo/examples/SerialSimulatorAWS/transpiler_out.json")
-body=json.load(f)
-body=json.loads(body)
-z=user_function(body)
-body=json.loads(z)
-# obj=json.dumps(body,default=str)
-# with open("/home/tarun/XFaaS/serwo/examples/SerialSimulatorAWS/simulator_out.json", "w") as f:
-#   json.dump(obj, f)
-# print("Output object:"+str(obj))
-# print(body)
