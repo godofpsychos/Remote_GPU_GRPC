@@ -1,4 +1,4 @@
-qiskit-aer
+qiskit-aer-gpu
 more-itertools
 grpcio
 requests
