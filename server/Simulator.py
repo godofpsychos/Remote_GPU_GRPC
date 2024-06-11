@@ -9,7 +9,16 @@ from IBM_Aer_gpu import AER_GPU
 class Simulator:
     def exec_circuit(subexperiments,devices):
         try:
-            results= AER_GPU.exec_circuitAER(subexperiments,devices)
+            result1= AER_GPU.exec_circuitAER(subexperiments,devices)
+            result2= AER_GPU.exec_circuitAER(subexperiments,devices,1)
+            # TODO: Write AWS Local Simulator code
+            result3=None
+            results={
+                "AER_without_GPU":result1,
+                "AER_with_GPU":result2,
+                "AWS_Local_Braket":result3
+
+            }
             print(results)
             return results
         except Exception as e:

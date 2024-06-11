@@ -6,7 +6,7 @@ from more_itertools import divide
 import logging
 
 class AER_GPU:
-    def exec_circuitAER(subexperiments,devices):
+    def exec_circuitAER(subexperiments,devices,gpu=0):
         try:
             devices= json.loads(devices)
             subexperiments = marshaller.objectifyCuts(subexperiments)
@@ -18,9 +18,15 @@ class AER_GPU:
                 device = devices[i]
                 if 'noise-model' in device:
                     noise_model = NoiseModel.from_dict(device['noise-model'])
-                    sampler = Sampler(backend_options={"noise_model": noise_model,'device':"GPU"})
+                    if gpu!=0:
+                        sampler = Sampler(backend_options={"noise_model": noise_model,'device':"GPU"})
+                    else:
+                        sampler = Sampler(backend_options={"noise_model": noise_model})
                 else:
-                    sampler = Sampler(backend_options={'device':"GPU"})
+                    if gpu!=0:
+                        sampler = Sampler(backend_options={'device':"GPU"})
+                    else:
+                        sampler=Sampler()
                 # print(batched_subexperiments)
 
                 for subexperiment_keys in batched_subexperiments[i]:
