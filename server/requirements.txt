@@ -1,5 +1,5 @@
 qiskit-aer-gpu
 more-itertools
-grpcio
+grpcio-tools
 requests
 qiskit-ibm-runtime
