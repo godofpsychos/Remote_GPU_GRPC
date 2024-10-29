@@ -51,17 +51,11 @@ class AER_GPU:
 
                 for subexperiment_keys in batched_subexperiments[i]:
                     for key in subexperiment_keys:
-                        start_time = time.time()
-                        
                         result = sampler.run(subexperiments[key]).result()
-                        result = {"result": result, "time": time.time() - start_time}
                         results[key] = json.dumps(
                             result, cls=program_serializers.QiskitObjectsEncoder
                         )
-            data = {}
-            data["results"] = results
-            # data = json.dumps(data)
-            return data
+            return results
         except Exception as e:
             print("Error in AER-GPU-Simulator function: ", e)
             logging.info(e)

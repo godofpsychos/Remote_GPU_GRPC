@@ -1,16 +1,30 @@
 syntax = "proto3";
+
 package gpusimulator;
 
 service GPUSimulator {
-  rpc  ExecuteCircuit(GetCircuitRequest) returns (GetCircuitResponse) {}
+  rpc ExecuteCircuit(GetCircuitRequest) returns (ExecuteCircuitResponse) {}
+  rpc CheckJobStatus(CheckJobStatusRequest) returns (CheckJobStatusResponse) {}
 }
 
-message Input{
-  string data=1;
+message Input {
+  string subexperiments = 1;
+  string devices = 2;
 }
-message GetCircuitRequest{
-  Input input=1;
+
+message GetCircuitRequest {
+  Input input = 1;
 }
-message GetCircuitResponse{
-  string results=1;
+
+message ExecuteCircuitResponse {
+  string job_id = 1;
+}
+
+message CheckJobStatusRequest {
+  string job_id = 1;
+}
+
+message CheckJobStatusResponse {
+  bool is_done = 1;
+  string results = 2;
 }

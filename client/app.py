@@ -3,7 +3,7 @@ import grpc
 import gpusimulator_pb2
 import gpusimulator_pb2_grpc
 import json
-
+import time
 
 def run(subexperiments, devices):
     ip_address = "localhost:50051"
@@ -17,22 +17,40 @@ def run(subexperiments, devices):
 
         try:
             response = stub.ExecuteCircuit(request)
-            results = response.results
-            print("Response received:", results)
-            return results
+            job_id = response.job_id
+            print("jobid", job_id)
+            return job_id
         except grpc.RpcError as e:
             print("Error making gRPC request:", e)
 
+def poll(job_id):
+    ip_address = "localhost:50051"
+    with grpc.insecure_channel(ip_address) as channel:
+        stub = gpusimulator_pb2_grpc.GPUSimulatorStub(channel)
+        request = gpusimulator_pb2.CheckJobStatusRequest(job_id=job_id)
+
+        try:
+            response = stub.CheckJobStatus(request)
+            print("status:", response.is_done)
+            return response
+        except grpc.RpcError as e:
+            print("Error polling:", e)
 
 if __name__ == "__main__":
     f = open("payload.json")
     body = json.load(f)
     input = json.loads(body)
-    # print("Input:",input)
     subexperiments = input["data"]["subexperiments"]
     devices = json.dumps(input["devices"])
 
-    output = run(subexperiments, devices)
+    jobid = run(subexperiments, devices)
 
-    with open("output.json", "w") as f:
-        json.dump(output, f, indent=4)
+    while True:
+        status = poll(jobid)
+        if status.is_done:
+            results = status.results
+            with open("output.json", "w") as f:
+                json.dump(results, f, indent=4)
+            print("saved")
+            break
+        time.sleep(5)
