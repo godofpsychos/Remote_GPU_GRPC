@@ -6,8 +6,7 @@ service GPUSimulator {
 }
 
 message Input{
-  string subexperiments=1;
-  string devices=2;
+  string data=1;
 }
 message GetCircuitRequest{
   Input input=1;

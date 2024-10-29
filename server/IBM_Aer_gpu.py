@@ -1,45 +1,69 @@
+from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_aer.noise import NoiseModel
-from qiskit_aer.primitives import Sampler
 from qutils import marshaller, program_serializers
 import json
 from more_itertools import divide
 import logging
+import os
+from qiskit_aer.primitives import Sampler
+import time
 
 class AER_GPU:
-    def exec_circuitAER(subexperiments,devices,gpu=0):
+    def exec_circuitAER(subexperiments, devices, service=None):
         try:
-            devices= json.loads(devices)
+            devices = json.loads(devices)
             subexperiments = marshaller.objectifyCuts(subexperiments)
             num_devices = len(devices)
             # print(len(subexperiments), num_devices)
-            batched_subexperiments = [list(b) for b in divide(num_devices, subexperiments.keys())]
+            batched_subexperiments = [
+                list(b) for b in divide(num_devices, subexperiments.keys())
+            ]
             results = {}
             for i in range(num_devices):
                 device = devices[i]
-                if 'noise-model' in device:
-                    noise_model = NoiseModel.from_dict(device['noise-model'])
-                    if gpu!=0:
-                        sampler = Sampler(backend_options={"noise_model": noise_model,'device':"GPU"})
-                    else:
-                        sampler = Sampler(backend_options={"noise_model": noise_model})
+                if "noise-model" in device:
+                    custom_noise_model = None
+                    with open(device.get("noise-model"), "r") as f:
+                        custom_noise_model = json.load(f)
+                    noise_model = NoiseModel.from_dict(custom_noise_model)
+
+                    backend_options = {"noise_model": noise_model}
+
+                    if "gpu" in device and device.get("gpu"):
+                        backend_options["device"] = "GPU"
+
+                    sampler = Sampler(backend_options=backend_options)
+                elif "backend" in device:
+                    real_backend = service.backend(device.get("backend"))
+                    noise_model = NoiseModel.from_backend(real_backend)
+                    backend_options = {"noise_model": noise_model}
+
+                    if "gpu" in device and device.get("gpu"):
+                        backend_options["device"] = "GPU"
+
+                    sampler = Sampler(backend_options=backend_options)
                 else:
-                    if gpu!=0:
-                        sampler = Sampler(backend_options={'device':"GPU"})
-                    else:
-                        sampler=Sampler()
-                # print(batched_subexperiments)
+                    backend_options = {}
+                    if "gpu" in device and device.get("gpu"):
+                        backend_options["device"] = "GPU"
+                    
+                    sampler = Sampler(backend_options=backend_options)
 
                 for subexperiment_keys in batched_subexperiments[i]:
                     for key in subexperiment_keys:
+                        start_time = time.time()
+                        
                         result = sampler.run(subexperiments[key]).result()
-                        # print(result)
-                        results[key] = json.dumps(result, cls=program_serializers.QiskitObjectsEncoder)
+                        result = {"result": result, "time": time.time() - start_time}
+                        results[key] = json.dumps(
+                            result, cls=program_serializers.QiskitObjectsEncoder
+                        )
             data = {}
-            data['results'] = results
-            data=json.dumps(data)
+            data["results"] = results
+            # data = json.dumps(data)
             return data
         except Exception as e:
-            print(e)
+            print("Error in AER-GPU-Simulator function: ", e)
             logging.info(e)
             logging.info("Error in AER-GPU-Simulator function")
-            raise Exception("Error at user function",e)
+            raise Exception("Error at IBM function", e)

@@ -7,7 +7,7 @@ from qiskit.quantum_info import PauliList
 def jsonifyCuts(subexperiments):
     jsonDict = {}
     for key, items in subexperiments.items():
-        print(key, len(items))
+        # print(key, len(items))
         l = []
         for item in items:
             l.append(serializers.circuit_serializer(item))
