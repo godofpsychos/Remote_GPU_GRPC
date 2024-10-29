@@ -10,12 +10,9 @@ from Simulator import Simulator
 
 class GPUSimulator(gpusimulator_pb2_grpc.GPUSimulatorServicer):
     def ExecuteCircuit(self, request, context):
-        # print('Request Payload:', request)
-        print(type(request.input))
         obj=request.input
-        # print(obj.subexperiments,obj.devices)
-        Results=Simulator.exec_circuit(obj.subexperiments,obj.devices)
-        return gpusimulator_pb2.GetCircuitResponse(results=Results)
+        results=Simulator.exec_circuit(obj.subexperiments, obj.devices)
+        return gpusimulator_pb2.GetCircuitResponse(results=results)
 
 def get_global_ip():
     try:

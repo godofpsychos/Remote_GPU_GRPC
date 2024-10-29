@@ -1,0 +1,25 @@
+{
+  "errors": [
+    {
+      "type": "qerror",
+      "operations": ["id"],
+      "instructions": [
+        [{ "name": "id", "qubits": [0] }],
+        [{ "name": "z", "qubits": [0] }],
+        [{ "name": "reset", "qubits": [0] }]
+      ],
+      "probabilities": [
+        0.9985173880068264, 0.0008581343741657005, 0.0006244776190078571
+      ],
+      "gate_qubits": [[0]]
+    },
+    {
+      "type": "qerror",
+      "operations": ["id"],
+      "instructions": [[{ "name": "id", "qubits": [0] }]],
+      "probabilities": [1.0],
+      "gate_qubits": [[1]]
+    }
+  ],
+  "x90_gates": []
+}

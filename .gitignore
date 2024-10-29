@@ -1,2 +1,2 @@
-grpc/
-.venv
+server/.env
+__pycache__

@@ -1,5 +1,7 @@
-qiskit-aer-gpu
 more-itertools
 grpcio-tools
 requests
-qiskit-ibm-runtime
+qiskit-ibm-runtime==0.29.0
+qiskit-aer==0.15.1
+qiskit==1.2.4
+qiskit-aer-gpu==0.15.1
