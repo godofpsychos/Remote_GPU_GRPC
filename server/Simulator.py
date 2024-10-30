@@ -1,7 +1,7 @@
 import json
 import logging
 from IBM_Aer_gpu import AER_GPU
-from AWS_Braket import Braket_Simulator
+# from AWS_Braket import Braket_Simulator
 import time
 import plotter
 from dotenv import dotenv_values
