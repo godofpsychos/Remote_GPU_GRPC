@@ -11,6 +11,7 @@ import json
 import threading
 import os
 import time
+from dotenv import dotenv_values
 
 jobs_file = "jobs.json"
 
@@ -123,7 +124,8 @@ def serve():
     serverip = get_ip()
     serverip = get_global_ip()
     serverip = "0.0.0.0"
-    port = "50051"
+    config = dotenv_values(".env")
+    port = config.get("PORT")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     gpusimulator_pb2_grpc.add_GPUSimulatorServicer_to_server(GPUSimulator(), server)
     server.add_insecure_port(serverip + ':' + port)
