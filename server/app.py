@@ -29,9 +29,9 @@ def load_jobs():
 def save_jobs():
     global jobs
     if not jobs:
-        logging.info("No jobs to save.")
+        # logging.info("No jobs to save.")
         return
-    logging.info("Saving jobs to file.")
+    logging.info(f"Saving {len(jobs)} jobs to file.")
     try:
         existing_jobs = load_jobs()
 
