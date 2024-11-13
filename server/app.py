@@ -29,9 +29,9 @@ def load_jobs():
 def save_jobs():
     global jobs
     if not jobs:
-        logging.info("No jobs to save.")
+        # logging.info("No jobs to save.")
         return
-    logging.info("Saving jobs to file.")
+    logging.info(f"Saving {len(jobs)} jobs to file.")
     try:
         existing_jobs = load_jobs()
 
@@ -62,7 +62,7 @@ class GPUSimulator(gpusimulator_pb2_grpc.GPUSimulatorServicer):
         logging.info(f"ExecuteCircuit request: job_id={job_id}")
 
         def execute():
-            time.sleep(10)
+            # time.sleep(15)
             results = Simulator.exec_circuit(obj.subexperiments, obj.devices)
             jobs[job_id]["results"] = results
             jobs[job_id]["is_done"] = True
