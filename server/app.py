@@ -62,7 +62,7 @@ class GPUSimulator(gpusimulator_pb2_grpc.GPUSimulatorServicer):
         logging.info(f"ExecuteCircuit request: job_id={job_id}")
 
         def execute():
-            time.sleep(10)
+            # time.sleep(15)
             results = Simulator.exec_circuit(obj.subexperiments, obj.devices)
             jobs[job_id]["results"] = results
             jobs[job_id]["is_done"] = True

@@ -7,6 +7,7 @@ import time
 
 def run(subexperiments, devices):
     ip_address = "localhost:50051"
+    # ip_address = "14.139.128.83:9092"
     with grpc.insecure_channel(ip_address) as channel:
         stub = gpusimulator_pb2_grpc.GPUSimulatorStub(channel)
 
@@ -40,10 +41,12 @@ if __name__ == "__main__":
     f = open("payload.json")
     body = json.load(f)
     input = json.loads(body)
-    subexperiments = input["data"]["subexperiments"]
+    subexperiments = json.dumps(input["data"]["subexperiments"])
     devices = json.dumps(input["devices"])
 
     jobid = run(subexperiments, devices)
+
+    print("jobid", jobid)
 
     while True:
         status = poll(jobid)
