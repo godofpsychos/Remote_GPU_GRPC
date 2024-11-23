@@ -49,10 +49,13 @@ You can modify the request parameters in the `client/payload.json` file. For exa
     "device": {
         "device": "aer",
         "backend": "ibm_brisbane",
-        "gpu": true
+        "gpu": true,
+        "shots": 1024
     }
 }
 ```
 
 - If the `gpu` parameter is set to `true`, the simulator will run on the GPU.
 - If the `gpu` parameter is set to `false`, the simulator will run on the CPU.
+
+- The `shots` parameter specifies the number of shots to run. The default value is 1024.

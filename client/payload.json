@@ -47,7 +47,8 @@
     },
     "device": {
         "device": "aer",
-        "bakend": "ibm_brisbane",
-        "gpu": true
+        "backend": "ibm_brisbane",
+        "gpu": false,
+        "shots": 1024
     }
 }

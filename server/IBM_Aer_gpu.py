@@ -13,6 +13,11 @@ class AER_GPU:
             print(len(subexperiments))
             results = {}
 
+            shots = device.get("shots", 1024)
+            print(f"shots used: {shots}")
+
+            sampler = None
+
             if "noise-model" in device:
                 custom_noise_model = None
                 with open(device.get("noise-model"), "r") as f:
@@ -38,12 +43,13 @@ class AER_GPU:
                     backend_options["device"] = "GPU"
                 
                 sampler = Sampler(backend_options=backend_options)
-                output = [serializers.circuit_deserializer(item) for item in subexperiments]
+            
+            output = [serializers.circuit_deserializer(item) for item in subexperiments]
 
-                result = sampler.run(output).result()
-                results = json.dumps(
-                    result, cls=program_serializers.QiskitObjectsEncoder
-                )
+            result = sampler.run(output, shots=shots).result()
+            results = json.dumps(
+                result, cls=program_serializers.QiskitObjectsEncoder
+            )
             return results
         except Exception as e:
             print("Error in AER-GPU-Simulator function: ", e)
