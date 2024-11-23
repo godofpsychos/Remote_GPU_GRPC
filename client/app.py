@@ -5,7 +5,8 @@ import gpusimulator_pb2_grpc
 import json
 import time
 
-ip_address = "localhost:50051"
+ip_address = "14.139.128.83:9092"
+# ip_address = "localhost:50051"
 
 def run(subexperiments, devices):
     with grpc.insecure_channel(ip_address) as channel:
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     f = open("payload.json")
     input = json.load(f)
     subexperiments = input["data"]["subexperiments"]
-    devices = input["devices"]
+    devices = input["device"]
 
     jobid = run(subexperiments, devices)
 

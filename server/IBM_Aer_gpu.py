@@ -19,8 +19,6 @@ class AER_GPU:
                     custom_noise_model = json.load(f)
                 noise_model = NoiseModel.from_dict(custom_noise_model)
 
-                backend_options = {"noise_model": noise_model}
-
                 if "gpu" in device and device.get("gpu"):
                     backend_options["device"] = "GPU"
 
@@ -49,6 +47,6 @@ class AER_GPU:
             return results
         except Exception as e:
             print("Error in AER-GPU-Simulator function: ", e)
-            logging.info(e)
-            logging.info("Error in AER-GPU-Simulator function")
+            logging.error(e)
+            logging.error("Error in AER-GPU-Simulator function")
             raise Exception("Error at IBM function", e)
