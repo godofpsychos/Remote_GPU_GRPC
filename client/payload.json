@@ -45,11 +45,9 @@
             "qtoken": ""
         }
     },
-    "devices": [
-        {
-            "device": "aer",
-            "backend": "ibm_brisbane",
-            "gpu": true
-        }
-    ]
+    "device": {
+        "device": "aer",
+        "bakend": "ibm_brisbane",
+        "gpu": true
+    }
 }

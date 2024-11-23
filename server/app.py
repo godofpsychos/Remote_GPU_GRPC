@@ -15,13 +15,13 @@ from dotenv import dotenv_values
 
 jobs_file = "jobs.json"
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 jobs = {}
 
 def load_jobs():
     if os.path.exists(jobs_file):
-        logging.info("Loading jobs from file.")
+        print("Loading jobs from file.")
         with open(jobs_file, 'r') as f:
             return json.load(f)
     return {}
@@ -29,9 +29,9 @@ def load_jobs():
 def save_jobs():
     global jobs
     if not jobs:
-        # logging.info("No jobs to save.")
+        # print("No jobs to save.")
         return
-    logging.info(f"Saving {len(jobs)} jobs to file.")
+    print(f"Saving {len(jobs)} jobs to file.")
     try:
         existing_jobs = load_jobs()
 
@@ -40,7 +40,7 @@ def save_jobs():
         with open(jobs_file, 'w') as f:
             json.dump(combined_jobs, f)
 
-        logging.info("Jobs saved.")
+        print("Jobs saved.")
     except Exception as e:
         logging.error(f"Error saving jobs: {str(e)}")
 
@@ -51,7 +51,7 @@ def periodic_save():
 
         completed_jobs = [job_id for job_id, job in jobs.items() if job["is_done"]]
         for job_id in completed_jobs:
-            logging.info(f"Removing completed job from memory: job_id={job_id}")
+            print(f"Removing completed job from memory: job_id={job_id}")
             del jobs[job_id]
 
 class GPUSimulator(gpusimulator_pb2_grpc.GPUSimulatorServicer):
@@ -59,7 +59,7 @@ class GPUSimulator(gpusimulator_pb2_grpc.GPUSimulatorServicer):
         job_id = str(uuid.uuid4())
         obj = request.input
         jobs[job_id] = {"is_done": False, "results": None, "start_time": time.time()}
-        logging.info(f"ExecuteCircuit request: job_id={job_id}")
+        print(f"ExecuteCircuit request: job_id={job_id}")
 
         def execute():
             # time.sleep(15)
@@ -68,14 +68,14 @@ class GPUSimulator(gpusimulator_pb2_grpc.GPUSimulatorServicer):
             jobs[job_id]["is_done"] = True
             jobs[job_id]["end_time"] = time.time()
             jobs[job_id]["time_taken"] = jobs[job_id]["end_time"] - jobs[job_id]["start_time"]
-            logging.info(f"Job completed: job_id={job_id}")
+            print(f"Job completed: job_id={job_id}")
 
         threading.Thread(target=execute).start()
         return gpusimulator_pb2.ExecuteCircuitResponse(job_id=job_id)
 
     def CheckJobStatus(self, request, context):
         job_id = request.job_id
-        logging.info(f"CheckJobStatus request: job_id={job_id}")
+        print(f"CheckJobStatus request: job_id={job_id}")
 
         if job_id in jobs:
             return gpusimulator_pb2.CheckJobStatusResponse(
@@ -83,7 +83,7 @@ class GPUSimulator(gpusimulator_pb2_grpc.GPUSimulatorServicer):
                 results=jobs[job_id]["results"] if jobs[job_id]["is_done"] else ""
             )
         else:
-            logging.info("Job ID not found in memory, checking file.")
+            print("Job ID not found in memory, checking file.")
             file_jobs = load_jobs()
             if job_id in file_jobs:
                 return gpusimulator_pb2.CheckJobStatusResponse(
@@ -112,7 +112,7 @@ def get_ip():
     s.connect(("8.8.8.8", 80))
     local_address = s.getsockname()
     s.close()
-    logging.info("Local IP Address: %s", local_address)
+    print("Local IP Address: %s", local_address)
     return local_address[0]
 
 def serve():
@@ -130,7 +130,7 @@ def serve():
     gpusimulator_pb2_grpc.add_GPUSimulatorServicer_to_server(GPUSimulator(), server)
     server.add_insecure_port(serverip + ':' + port)
     server.start()
-    logging.info("Server started, listening on %s:%s", serverip, port)
+    print("Server started, listening on %s:%s", serverip, port)
     server.wait_for_termination()
 
 if __name__ == "__main__":
