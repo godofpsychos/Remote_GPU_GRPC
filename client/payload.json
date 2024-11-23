@@ -49,6 +49,6 @@
         "device": "aer",
         "backend": "ibm_brisbane",
         "gpu": false,
-        "shots": 1
+        "shots": 1024
     }
 }
