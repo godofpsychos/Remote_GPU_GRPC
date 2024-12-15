@@ -15,8 +15,7 @@ from dotenv import dotenv_values
 import json
 
 jobs_file = "jobs.json"
-noise_models_file = "noise_models.json"
-
+noise_models_dir = "noise_models"
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 jobs = {}
@@ -31,40 +30,41 @@ def load_jobs():
 def save_jobs():
     global jobs
     if not jobs:
-        # print("No jobs to save.")
         return
     print(f"Saving {len(jobs)} jobs to file.")
     try:
         existing_jobs = load_jobs()
-
         combined_jobs = {**existing_jobs, **jobs}
-
         with open(jobs_file, 'w') as f:
             json.dump(combined_jobs, f)
-
         print("Jobs saved.")
     except Exception as e:
         logging.error(f"Error saving jobs: {str(e)}")
 
 def load_noise_models():
-    if os.path.exists(noise_models_file):
-        print("Loading noise models from file.")
-        with open(noise_models_file, 'r') as f:
-            return json.load(f or "{}")
+    if os.path.exists(noise_models_dir):
+        print("Loading noise models from directory.")
+        noise_models = {}
+        for filename in os.listdir(noise_models_dir):
+            if filename.endswith(".json"):
+                job_id = filename.split(".")[0]
+                with open(os.path.join(noise_models_dir, filename), 'r') as f:
+                    noise_models[job_id] = json.load(f)
+        return noise_models
     return {}
 
-def save_noise_models(noise_model_data):
+def save_noise_model(job_id, noise_model_data):
     try:
-        existing_noise_models = load_noise_models()
+        if not os.path.exists(noise_models_dir):
+            os.makedirs(noise_models_dir)
 
-        combined_noise_models = {**existing_noise_models, **noise_model_data}
+        noise_model_filename = os.path.join(noise_models_dir, f"{job_id}.json")
+        with open(noise_model_filename, 'w') as f:
+            json.dump(noise_model_data, f)
 
-        with open(noise_models_file, 'w') as f:
-            json.dump(combined_noise_models, f)
-
-        print("Noise models saved.")
+        print(f"Noise model saved to {noise_model_filename}.")
     except Exception as e:
-        logging.error(f"Error saving noise models: {str(e)}")
+        logging.error(f"Error saving noise model for job {job_id}: {str(e)}")
 
 def periodic_save():
     while True:
@@ -84,7 +84,6 @@ class GPUSimulator(gpusimulator_pb2_grpc.GPUSimulatorServicer):
         print(f"ExecuteCircuit request: job_id={job_id}")
 
         def execute():
-            # time.sleep(15)
             results, noise_model = Simulator.exec_circuit(obj.subexperiments, obj.devices)
             jobs[job_id]["results"] = results
             jobs[job_id]["is_done"] = True
@@ -93,15 +92,13 @@ class GPUSimulator(gpusimulator_pb2_grpc.GPUSimulatorServicer):
             print(f"Job completed: job_id={job_id}")
 
             noise_model_data = {
-                job_id: {
-                    "noise_model": json.dumps(noise_model) if noise_model else None,
-                    "timestamp": jobs[job_id]["start_time"],
-                    "device": json.loads(obj.devices)["backend"] if "backend" in obj.devices else "AER"
-                }
+                "timestamp": jobs[job_id]["start_time"],
+                "device": json.loads(obj.devices)["backend"] if "backend" in obj.devices else "AER",
+                "noise_model": json.dumps(noise_model) if noise_model else None
             }
 
             if noise_model:
-                save_noise_models(noise_model_data)
+                save_noise_model(job_id, noise_model_data)
 
         threading.Thread(target=execute).start()
         return gpusimulator_pb2.ExecuteCircuitResponse(job_id=job_id)
