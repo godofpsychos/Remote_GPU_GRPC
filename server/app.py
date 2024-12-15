@@ -12,8 +12,10 @@ import threading
 import os
 import time
 from dotenv import dotenv_values
+import json
 
 jobs_file = "jobs.json"
+noise_models_file = "noise_models.json"
 
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -44,6 +46,26 @@ def save_jobs():
     except Exception as e:
         logging.error(f"Error saving jobs: {str(e)}")
 
+def load_noise_models():
+    if os.path.exists(noise_models_file):
+        print("Loading noise models from file.")
+        with open(noise_models_file, 'r') as f:
+            return json.load(f or "{}")
+    return {}
+
+def save_noise_models(noise_model_data):
+    try:
+        existing_noise_models = load_noise_models()
+
+        combined_noise_models = {**existing_noise_models, **noise_model_data}
+
+        with open(noise_models_file, 'w') as f:
+            json.dump(combined_noise_models, f)
+
+        print("Noise models saved.")
+    except Exception as e:
+        logging.error(f"Error saving noise models: {str(e)}")
+
 def periodic_save():
     while True:
         time.sleep(30)
@@ -63,12 +85,23 @@ class GPUSimulator(gpusimulator_pb2_grpc.GPUSimulatorServicer):
 
         def execute():
             # time.sleep(15)
-            results = Simulator.exec_circuit(obj.subexperiments, obj.devices)
+            results, noise_model = Simulator.exec_circuit(obj.subexperiments, obj.devices)
             jobs[job_id]["results"] = results
             jobs[job_id]["is_done"] = True
             jobs[job_id]["end_time"] = time.time()
             jobs[job_id]["time_taken"] = jobs[job_id]["end_time"] - jobs[job_id]["start_time"]
             print(f"Job completed: job_id={job_id}")
+
+            noise_model_data = {
+                job_id: {
+                    "noise_model": json.dumps(noise_model) if noise_model else None,
+                    "timestamp": jobs[job_id]["start_time"],
+                    "device": json.loads(obj.devices)["backend"] if "backend" in obj.devices else "AER"
+                }
+            }
+
+            if noise_model:
+                save_noise_models(noise_model_data)
 
         threading.Thread(target=execute).start()
         return gpusimulator_pb2.ExecuteCircuitResponse(job_id=job_id)

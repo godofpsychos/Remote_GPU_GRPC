@@ -64,9 +64,9 @@ class Simulator:
 
     def exec_circuit(subexperiments, devices):
         try:
-            results = Simulator.exec_simulator(AER_GPU.exec_circuitAER, subexperiments, devices, Simulator.service)
+            results, noise_model = Simulator.exec_simulator(AER_GPU.exec_circuitAER, subexperiments, devices, Simulator.service)
             
-            return json.dumps(results)
+            return json.dumps(results), noise_model
         
         except Exception as e:
             print(e)

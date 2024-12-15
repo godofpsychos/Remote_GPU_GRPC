@@ -12,6 +12,7 @@ class AER_GPU:
             subexperiments = json.loads(subexperiments)
             print(len(subexperiments))
             results = {}
+            noise_model = None
 
             shots = device.get("shots", 1024)
             print(f"shots used: {shots}")
@@ -50,7 +51,7 @@ class AER_GPU:
             results = json.dumps(
                 result, cls=program_serializers.QiskitObjectsEncoder
             )
-            return results
+            return results, json.dumps(noise_model.to_dict(), cls=program_serializers.QiskitObjectsEncoder)
         except Exception as e:
             print("Error in AER-GPU-Simulator function: ", e)
             logging.error(e)
